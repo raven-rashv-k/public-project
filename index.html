@@ -27,7 +27,7 @@
       background: #fff;
       border-bottom: 1px solid #ddd;
     }
-    #controls input, #controls button {
+    #controls input, #controls select, #controls button {
       padding: 8px;
       border-radius: 6px;
       border: 1px solid #ccc;
@@ -94,7 +94,12 @@
 
   <div id="controls">
     <input id="apiKey" type="password" placeholder="Enter Gemini API Key" />
-    <input id="model" type="text" placeholder="Enter Model (e.g., gemini-1.5-flash)" />
+    <select id="model">
+      <option value="gemini-2.5-flash" selected>gemini-2.5-flash</option>
+      <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite</option>
+      <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+      <option value="gemini-2.0-flash-lite">gemini-2.0-flash-lite</option>
+    </select>
     <button onclick="startChat()">Start Chat</button>
   </div>
 
@@ -111,8 +116,8 @@
 
     async function startChat() {
       const key = document.getElementById("apiKey").value.trim();
-      const modelName = document.getElementById("model").value.trim();
-      if (!key || !modelName) { alert("Please enter API key and model"); return; }
+      const modelName = document.getElementById("model").value;
+      if (!key || !modelName) { alert("Please enter API key and select a model"); return; }
 
       ai = new GoogleGenerativeAI({ apiKey: key });
       const model = ai.getGenerativeModel({ model: modelName });
