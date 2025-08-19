@@ -126,6 +126,7 @@
         model: "gemini-2.0-flash",
         contents: "Explain how AI works in a few words",
       });
+      console.log(response.text);
       document.getElementById("chat").innerHTML += `<div class="bubble model">Chat started with model: ${modelName}</div>`;
       // ai = new GoogleGenerativeAI({ apiKey: key });
       // const model = ai.getGenerativeModel({ model: modelName });
