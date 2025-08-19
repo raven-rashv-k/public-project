@@ -90,7 +90,7 @@
   </style>
 </head>
 <body>
-  <header>Hello my name is Neutonian AI</header>
+  <header>Neutonian AI</header>
 
   <div id="controls">
     <input id="apiKey" type="password" placeholder="Enter Gemini API Key" />
@@ -112,24 +112,33 @@
 
   <script type="module">
     import { GoogleGenerativeAI } from "https://cdn.skypack.dev/@google/generative-ai";
+    import { GoogleGenAI } from "@google/genai";
     let ai, chat;
 
     async function startChat() {
       const key = document.getElementById("apiKey").value.trim();
       const modelName = document.getElementById("model").value;
-      console.log(`DEBUGG: apiKey:: ->${key}<- | modelName:: ->${modelName}<- `);
+      // console.log(`DEBUGG: apiKey:: ->${key}<- | modelName:: ->${modelName}<- `);
       if (!key || !modelName) { alert("Please enter API key and select a model"); return; }
 
-      ai = new GoogleGenerativeAI({ apiKey: key });
-      const model = ai.getGenerativeModel({ model: modelName });
-
-      chat = await model.startChat({
-        systemInstruction: {
-          role: "system",
-          content: "You are Neutonian AI. Always respond in English only."
-        }
+      ai = new GoogleGenAI({ apiKey: key });
+      const response = await ai.models.generateContent({
+        model: "gemini-2.0-flash",
+        contents: "Explain how AI works in a few words",
       });
       document.getElementById("chat").innerHTML += `<div class="bubble model">Chat started with model: ${modelName}</div>`;
+      // ai = new GoogleGenerativeAI({ apiKey: key });
+      // const model = ai.getGenerativeModel({ model: modelName });
+
+      // chat = await model.startChat({
+      //   systemInstruction: {
+      //     role: "system",
+      //     content: "You are Neutonian AI. Always respond in English only."
+      //   }
+      // });
+      // document.getElementById("chat").innerHTML += `<div class="bubble model">Chat started with model: ${modelName}</div>`;
+
+      
     }
 
     async function sendMsg() {
