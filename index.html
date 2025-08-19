@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gemini Agent – Single‑file Demo</title>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --panel: #121933;
+        --muted: #9aa4bf;
+        --text: #e9edff;
+        --accent: #9bb1ff;
+        --ring: #2b3a7f;
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        background: radial-gradient(1000px 500px at 75% -100px, #19224a 10%, transparent 60%) no-repeat, var(--bg);
+        color: var(--text);
+        font: 15px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Inter, Helvetica, Arial, sans-serif;
+      }
+      header { padding: 20px; text-align: center; }
+      header h1 { margin: 0 0 6px; font-size: 20px; }
+      header p { margin: 0; color: var(--muted); }
+
+      .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px 40px; }
+      .panel {
+        background: color-mix(in lch, var(--panel), black 10%);
+        border: 1px solid var(--ring);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      }
+      .row { display: grid; gap: 12px; grid-template-columns: 1fr 1fr 1fr; }
+      .row .field { display: grid; gap: 6px; }
+      .field label { color: var(--muted); font-size: 12px; }
+      input[type="password"], input[type="text"], select, textarea {
+        background: #0f1530;
+        color: var(--text);
+        border: 1px solid #2a376f;
+        border-radius: 10px;
+        padding: 10px 12px;
+        outline: none;
+      }
+      input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px #2b3a7f55; }
+      textarea { min-height: 64px; resize: vertical; }
+
+      .toolbar { padding: 16px; display: grid; gap: 12px; }
+      .toolbar .row { grid-template-columns: 2fr 1fr 1fr; }
+
+      .chat { height: 58vh; overflow: auto; padding: 20px; border-top: 1px solid #22306b; border-bottom: 1px solid #22306b; }
+      .msg { display: grid; gap: 6px; margin: 12px 0; }
+      .msg .role { font-size: 12px; color: var(--muted); }
+      .bubble { background: #0f1530; border: 1px solid #25336d; border-radius: 14px; padding: 12px 14px; white-space: pre-wrap; }
+      .user .bubble { background: #0f1a3f; border-color: #33459c; }
+      .assistant .bubble { background: #0f1839; }
+      .sysnote { padding: 6px 10px; border: 1px dashed #33459c; border-radius: 8px; font-size: 12px; color: var(--muted); }
+
+      .composer { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 16px; }
+      .btn { appearance: none; border: 1px solid #2a376f; background: #0f1839; color: var(--text); padding: 10px 14px; border-radius: 10px; cursor: pointer; }
+      .btn[disabled] { opacity: .6; cursor: not-allowed; }
+      .btn.primary { border-color: #4155c5; background: linear-gradient(180deg, #2c3a85, #1b2768); }
+      .pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid #2a376f; border-radius: 999px; color: var(--muted); font-size: 12px; }
+      .spacer { flex: 1; }
+      .small { font-size: 12px; color: var(--muted); }
+      code.kbd { background: #0e1430; border: 1px solid #2a376f; padding: 1px 6px; border-radius: 6px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Gemini Agent</h1>
+      <p>Paste a temporary <strong>Gemini API key</strong> (for prototyping only), set a system instruction, and chat.</p>
+    </header>
+    <div class="wrap">
+      <section class="panel toolbar">
+        <div class="row">
+          <div class="field">
+            <label>API key (kept in memory only; don’t hard‑code in production)</label>
+            <input id="apiKey" type="password" placeholder="AIza..." />
+          </div>
+          <div class="field">
+            <label>Model</label>
+            <select id="model">
+              <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+              <option value="gemini-2.0-flash-001">gemini-2.0-flash-001</option>
+              <option value="gemini-2.0-pro-exp-02-05">gemini-2.0-pro-exp-02-05 (if enabled)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Response tokens (approx)</label>
+            <input id="maxTokens" type="text" inputmode="numeric" value="1024" />
+          </div>
+        </div>
+        <div class="field">
+          <label>System instruction (how the agent should behave)</label>
+          <textarea id="system" placeholder="You are a helpful, concise assistant. Answer in markdown where appropriate."></textarea>
+        </div>
+        <div class="sysnote">⚠️ Never expose permanent API keys in client code. Use this page only for local demos or behind authentication. For production, proxy requests from your server or use Firebase AI Logic.</div>
+      </section>
+
+      <section id="chat" class="panel chat"></section>
+
+      <form id="composer" class="panel composer">
+        <textarea id="input" placeholder="Type a message…" required></textarea>
+        <button id="send" class="btn primary">Send</button>
+      </form>
+      <div style="display:flex; gap:8px; padding: 0 16px;">
+        <button id="clear" class="btn" title="Clear chat"><span>Clear</span></button>
+        <span class="pill small">Tip: press <code class="kbd">Ctrl</code>+<code class="kbd">Enter</code> to send</span>
+        <span class="spacer"></span>
+        <a id="downloadBtn" class="btn" download="gemini-chat-transcript.json">Download transcript</a>
+      </div>
+    </div>
+
+    <script type="module">
+      // Import the Google Gen AI JS SDK from a CDN for quick demos.
+      // In real apps, install with npm and call the API from your server.
+      import { GoogleGenAI } from 'https://esm.run/@google/genai@latest';
+
+      const el = (sel) => document.querySelector(sel);
+      const chatEl = el('#chat');
+      const inputEl = el('#input');
+      const formEl = el('#composer');
+      const clearBtn = el('#clear');
+      const sendBtn = el('#send');
+      const downloadBtn = el('#downloadBtn');
+
+      let ai = null; // GoogleGenAI instance
+      let history = []; // local chat history; each item: { role: 'user'|'model', text }
+
+      function addMessage(role, text) {
+        const wrap = document.createElement('div');
+        wrap.className = `msg ${role}`;
+        wrap.innerHTML = `<div class="role">${role === 'user' ? 'You' : 'Gemini'}</div><div class="bubble"></div>`;
+        wrap.querySelector('.bubble').textContent = text;
+        chatEl.appendChild(wrap);
+        chatEl.scrollTop = chatEl.scrollHeight;
+        return wrap.querySelector('.bubble');
+      }
+
+      function setBusy(busy) {
+        sendBtn.disabled = busy;
+        inputEl.disabled = busy;
+      }
+
+      async function ensureClient() {
+        const key = el('#apiKey').value.trim();
+        if (!key) throw new Error('Enter an API key.');
+        if (ai && ai.__key === key) return ai;
+        ai = new GoogleGenAI({ apiKey: key });
+        ai.__key = key; // tiny memoization hack
+        return ai;
+      }
+
+      function buildContents(userText) {
+        const sys = el('#system').value.trim();
+        const parts = [];
+        if (sys) {
+          // Include as system instruction via config below.
+        }
+        // Build a compact transcript for the request.
+        const contents = [];
+        for (const m of history) contents.push({ role: m.role === 'model' ? 'model' : 'user', parts: [{ text: m.text }] });
+        contents.push({ role: 'user', parts: [{ text: userText }] });
+        return { contents, sys };
+      }
+
+      formEl.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const text = inputEl.value.trim();
+        if (!text) return;
+        inputEl.value = '';
+
+        const userBubble = addMessage('user', text);
+        history.push({ role: 'user', text });
+
+        let modelBubble = addMessage('assistant', '');
+        setBusy(true);
+        try {
+          const aiClient = await ensureClient();
+          const model = el('#model').value;
+          const maxTokens = parseInt(el('#maxTokens').value || '1024', 10);
+          const { contents, sys } = buildContents(text);
+
+          const stream = await aiClient.models.generateContentStream({
+            model,
+            contents,
+            config: {
+              systemInstruction: sys ? [sys] : undefined,
+              generationConfig: { maxOutputTokens: isFinite(maxTokens) ? maxTokens : 1024 },
+            },
+          });
+
+          let done = '';
+          for await (const chunk of stream) {
+            const delta = chunk.text();
+            if (delta) {
+              done += delta;
+              modelBubble.textContent = done;
+              chatEl.scrollTop = chatEl.scrollHeight;
+            }
+          }
+
+          history.push({ role: 'model', text: done });
+        } catch (err) {
+          console.error(err);
+          modelBubble.textContent = '⚠️ ' + (err?.message || err?.toString?.() || 'Unknown error');
+        } finally {
+          setBusy(false);
+        }
+      });
+
+      // Keyboard shortcut: Ctrl/Cmd+Enter to send
+      inputEl.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+          formEl.requestSubmit();
+        }
+      });
+
+      clearBtn.addEventListener('click', () => {
+        history = [];
+        chatEl.innerHTML = '';
+        inputEl.focus();
+      });
+
+      downloadBtn.addEventListener('click', (e) => {
+        const blob = new Blob([JSON.stringify({ model: el('#model').value, history }, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        downloadBtn.href = url;
+      });
+
+      // Seed a friendly greeting
+      addMessage('assistant', 'Hi! Paste a temporary API key at the top, set a system instruction, and ask me anything.');
+    </script>
+  </body>
+</html>
