@@ -116,8 +116,8 @@
 
     async function startChat() {
       const key = document.getElementById("apiKey").value.trim();
-      console.log(`DEBUGG: apiKey:: ->${key}<- | model:: ->${model}<- `);
       const modelName = document.getElementById("model").value;
+      console.log(`DEBUGG: apiKey:: ->${key}<- | modelName:: ->${modelName}<- `);
       if (!key || !modelName) { alert("Please enter API key and select a model"); return; }
 
       ai = new GoogleGenerativeAI({ apiKey: key });
