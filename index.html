@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Neutonian AI Chat</title>
+  <title>Neutonian AI</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f7f9fc;
+      font-family: "Inter", sans-serif;
+      background: #f0f2f5;
       margin: 0;
       padding: 0;
       display: flex;
@@ -14,76 +14,104 @@
       height: 100vh;
     }
     header {
-      background: #2d3e50;
-      color: white;
+      background: #1e1e2f;
+      color: #fff;
       text-align: center;
-      padding: 15px;
+      padding: 16px;
       font-size: 20px;
-      font-weight: bold;
+      font-weight: 600;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     .config {
       background: #fff;
-      padding: 10px;
+      padding: 12px;
       display: flex;
       gap: 10px;
       justify-content: center;
       align-items: center;
-      border-bottom: 1px solid #ccc;
+      border-bottom: 1px solid #e0e0e0;
     }
-    .config input, .config select, .config button {
-      padding: 6px;
+    .config input, .config select {
+      padding: 10px;
       font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+      min-width: 180px;
+    }
+    .config button {
+      padding: 10px 18px;
+      font-size: 14px;
+      background: #1e1e2f;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .config button:hover {
+      background: #33334d;
     }
     #chat-container {
       flex: 1;
       display: flex;
       flex-direction: column;
-      padding: 15px;
+      padding: 20px;
       overflow-y: auto;
+      background: #f7f9fc;
     }
     .message {
       max-width: 70%;
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 10px;
+      padding: 12px 16px;
+      margin: 6px 0;
+      border-radius: 14px;
       line-height: 1.4;
+      font-size: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     .user {
       background: #4a90e2;
       color: white;
       align-self: flex-end;
+      border-bottom-right-radius: 4px;
     }
     .bot {
-      background: #e5e5ea;
-      color: black;
+      background: #e6f5ea;
+      color: #1e4620;
       align-self: flex-start;
+      border-bottom-left-radius: 4px;
     }
     #input-area {
       display: flex;
-      padding: 10px;
-      border-top: 1px solid #ccc;
+      padding: 12px;
+      border-top: 1px solid #e0e0e0;
       background: #fff;
     }
     #user-input {
       flex: 1;
-      padding: 8px;
+      padding: 12px;
       font-size: 14px;
       border: 1px solid #ccc;
-      border-radius: 5px;
+      border-radius: 8px;
+      outline: none;
     }
     #send-btn {
-      padding: 8px 15px;
-      margin-left: 8px;
-      background: #2d3e50;
+      padding: 12px 18px;
+      margin-left: 10px;
+      background: #1e1e2f;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
+      transition: background 0.2s;
+    }
+    #send-btn:hover {
+      background: #33334d;
     }
   </style>
 </head>
 <body>
-  <header>Hello, I’m Neutonian AI — your Gemini-powered assistant</header>
+  <header>Neutonian AI</header>
 
   <div class="config">
     <input type="password" id="apiKey" placeholder="Enter API Key" />
@@ -99,7 +127,7 @@
   <div id="chat-container"></div>
 
   <div id="input-area">
-    <input type="text" id="user-input" placeholder="Type your message here..." disabled />
+    <input type="text" id="user-input" placeholder="Type your message..." disabled />
     <button id="send-btn" disabled>Send</button>
   </div>
 
@@ -116,7 +144,7 @@
     function addMessage(text, sender) {
       const msg = document.createElement("div");
       msg.className = "message " + (sender === "You" ? "user" : "bot");
-      msg.textContent = (sender === "You" ? "You: " : "Neutonian AI: ") + text;
+      msg.textContent = (sender === "You" ? text : "Neutonian AI: " + text);
       chatContainer.appendChild(msg);
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
@@ -126,7 +154,7 @@
       model = document.getElementById("model").value;
 
       if (!apiKey) {
-        alert("Please enter your Gemini API key.");
+        alert("Please enter your API key.");
         return;
       }
 
@@ -135,7 +163,7 @@
 
       userInput.disabled = false;
       sendBtn.disabled = false;
-      addMessage("Neutonian AI is ready! You can start chatting now.", "Neutonian AI");
+      addMessage("Neutonian AI is ready! Start chatting.", "bot");
     });
 
     async function sendMessage() {
@@ -147,9 +175,9 @@
       try {
         const result = await chat.sendMessage(text);
         const reply = result.response.text();
-        addMessage(reply, "Neutonian AI");
+        addMessage(reply, "bot");
       } catch (err) {
-        addMessage("Error: " + err.message, "Neutonian AI");
+        addMessage("Error: " + err.message, "bot");
       }
     }
 
