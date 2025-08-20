@@ -1,241 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Neutonian AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    * { box-sizing: border-box; }
-    html, body {
-      height: 100%;
-      margin: 0;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: #f5f7fa;
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f4f6f9;
+      height: 100vh;
+      padding: 10px;
     }
 
     .app {
-      height: 100%;
+      background: #fff;
       width: 100%;
+      max-width: 500px;
+      height: 90vh;
       display: flex;
       flex-direction: column;
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       overflow: hidden;
     }
 
-    .header {
-      padding: 14px 16px;
-      background: #4f46e5;
-      color: #fff;
-      font-size: 1.1rem;
-      font-weight: 700;
+    .topbar {
+      padding: 15px;
+      background: #222;
+      color: white;
       text-align: center;
-      flex-shrink: 0;
+      font-size: 18px;
+      font-weight: bold;
     }
 
-    .config {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+    .controls {
       padding: 12px;
-      border-bottom: 1px solid #eee;
-      background: #fafafa;
-      flex-shrink: 0;
-    }
-    .config input,
-    .config select,
-    .config button {
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      font-size: 0.95rem;
-      min-width: 140px;
-    }
-    .config input, .config select { flex: 1 1 160px; }
-    .config button {
-      background: #4f46e5; color: #fff; border: none; cursor: pointer;
-      transition: background .2s ease;
-      flex: 0 0 auto;
-    }
-    .config button:hover { background: #4338ca; }
-
-    /* ✅ Chat column: bubbles always stack vertically */
-    .chat {
-      flex: 1 1 auto;
-      background: #f9fafb;
-      padding: 16px;
-      overflow-y: auto;
-
       display: flex;
       flex-direction: column;
-      gap: 8px; /* spacing between bubbles */
+      gap: 8px;
+      background: #f9f9f9;
+      border-bottom: 1px solid #ddd;
     }
 
-    .message {
-      display: block;                 /* block so width behaves predictably */
-      max-width: 80%;
-      padding: 10px 14px;
-      border-radius: 14px;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
-      animation: fadeIn .25s ease;
-    }
-    .user {
-      align-self: flex-end;           /* right side */
-      background: #4f46e5;
-      color: #fff;
-      border-bottom-right-radius: 4px;
-    }
-    .bot {
-      align-self: flex-start;         /* left side */
-      background: #e5e7eb;
-      color: #111;
-      border-bottom-left-radius: 4px;
+    .controls input, .controls select, .controls button {
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
     }
 
-    /* Typing loader stays compact inside a bot bubble */
-    .loader {
-      display: inline-flex;
-      gap: 4px;
-      vertical-align: middle;
-    }
-    .loader span {
-      width: 6px; height: 6px; background: #555;
-      border-radius: 50%;
-      animation: blink 1.4s infinite both;
-    }
-    .loader span:nth-child(2) { animation-delay: .2s; }
-    .loader span:nth-child(3) { animation-delay: .4s; }
-    @keyframes blink { 0%,80%,100%{transform:scale(0)} 40%{transform:scale(1)} }
-
-    .input-area {
-      display: flex;
-      gap: 10px;
-      border-top: 1px solid #eee;
-      padding: 10px;
-      background: #fff;
-      flex-shrink: 0;
-    }
-    .input-area input {
-      flex: 1 1 auto;
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      font-size: 1rem;
-    }
-    .input-area button {
-      padding: 12px 18px;
+    .controls button {
+      background: #007bff;
+      color: white;
       border: none;
-      border-radius: 8px;
-      background: #4f46e5;
-      color: #fff;
       cursor: pointer;
     }
+    .controls button:hover { background: #0056b3; }
 
-    @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-
-    /* 📱 Mobile */
-    @media (max-width: 600px) {
-      .config { flex-direction: column; }
-      .config input, .config select, .config button { width: 100%; }
-      .message { max-width: 95%; }
+    .chat {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #fafafa;
     }
-    /* 📟 Tablet */
-    @media (min-width: 601px) and (max-width: 1024px) {
-      .config { flex-direction: column; align-items: stretch; }
-      .config input, .config select, .config button { width: 100%; }
-      .message { max-width: 90%; }
+
+    .msg {
+      padding: 10px 14px;
+      border-radius: 10px;
+      max-width: 80%;
+      word-wrap: break-word;
+      line-height: 1.4;
+    }
+
+    .msg.user {
+      background: #007bff;
+      color: white;
+      align-self: flex-end;
+    }
+
+    .msg.bot {
+      background: #e9ecef;
+      color: black;
+      align-self: flex-start;
+    }
+
+    .inputArea {
+      display: flex;
+      gap: 8px;
+      padding: 12px;
+      border-top: 1px solid #ddd;
+      background: #fff;
+    }
+
+    .inputArea input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    .inputArea button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      background: #28a745;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .inputArea button:hover { background: #1e7e34; }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .app { height: 95vh; max-width: 100%; }
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <div class="header">Neutonian AI</div>
-
-    <div class="config">
-      <input id="apiKey" type="password" placeholder="Enter your API Key" />
+    <div class="topbar">Neutonian AI</div>
+    <div class="controls">
+      <input id="apiKey" type="password" placeholder="Enter your Gemini API Key">
       <select id="model">
         <option value="gemini-2.5-flash" selected>gemini-2.5-flash</option>
+        <option value="gemini-2.0-flash">gemini-2.0-flash</option>
         <option value="gemini-1.5-flash">gemini-1.5-flash</option>
         <option value="gemini-1.5-pro">gemini-1.5-pro</option>
       </select>
       <button id="startBtn">Start</button>
     </div>
-
     <div id="chat" class="chat"></div>
-
-    <div class="input-area">
-      <input id="userInput" type="text" placeholder="Type a message and press Enter..." disabled />
-      <button id="sendBtn" disabled>Send</button>
+    <div class="inputArea">
+      <input id="userInput" type="text" placeholder="Type a message...">
+      <button id="sendBtn">Send</button>
     </div>
   </div>
+
+  <!-- Markdown parser -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
   <script type="module">
     import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
     let genAI, model;
 
-    const chatEl = document.getElementById("chat");
-    const userInput = document.getElementById("userInput");
-    const sendBtn = document.getElementById("sendBtn");
-    const startBtn = document.getElementById("startBtn");
-
-    function addMessage(html, cls) {
-      const div = document.createElement("div");
-      div.className = `message ${cls}`;
-      div.innerHTML = html;
-      chatEl.appendChild(div);
-      chatEl.scrollTop = chatEl.scrollHeight;
-      return div;
+    function addMessage(content, sender) {
+      const chat = document.getElementById("chat");
+      const msg = document.createElement("div");
+      msg.className = `msg ${sender}`;
+      msg.innerHTML = content; // ✅ rich text
+      chat.appendChild(msg);
+      chat.scrollTop = chat.scrollHeight;
     }
 
-    startBtn.addEventListener("click", () => {
+    document.getElementById("startBtn").addEventListener("click", () => {
       const key = document.getElementById("apiKey").value.trim();
       const modelName = document.getElementById("model").value;
-      if (!key) return alert("Please enter your API Key");
-
+      if (!key) {
+        alert("Please enter API key");
+        return;
+      }
       genAI = new GoogleGenerativeAI(key);
       model = genAI.getGenerativeModel({ model: modelName });
+      document.getElementById("chat").innerHTML = "";
+      addMessage("👋 Hello! I am Neutonian AI. How can I help you?", "bot");
+    });
 
-      userInput.disabled = false;
-      sendBtn.disabled = false;
-
-      addMessage("Neutonian AI is ready. Start chatting!", "bot");
+    document.getElementById("sendBtn").addEventListener("click", sendMessage);
+    document.getElementById("userInput").addEventListener("keypress", e => {
+      if (e.key === "Enter") sendMessage();
     });
 
     async function sendMessage() {
-      const text = userInput.value.trim();
+      const input = document.getElementById("userInput");
+      const text = input.value.trim();
       if (!text || !model) return;
 
-      addMessage(text.replace(/\n/g, "<br>"), "user");
-      userInput.value = "";
+      addMessage(marked.parse(text), "user");
+      input.value = "";
 
-      // show typing loader as a normal bot bubble
-      const loaderBubble = addMessage(
-        `<span class="loader"><span></span><span></span><span></span></span>`,
-        "bot"
-      );
+      const loaderBubble = document.createElement("div");
+      loaderBubble.className = "msg bot";
+      loaderBubble.textContent = "⏳ Neutonian AI is thinking...";
+      document.getElementById("chat").appendChild(loaderBubble);
+      document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
 
       try {
         const result = await model.generateContent(text);
-        const reply = result.response.text().replace(/\n/g, "<br>");
+        const rawReply = result.response.text();
+
+        const replyHtml = marked.parse(rawReply); // ✅ format Markdown
+
         loaderBubble.remove();
-        addMessage(reply, "bot");
+        addMessage(replyHtml, "bot");
       } catch (err) {
         loaderBubble.remove();
         addMessage(`⚠️ Error: ${err.message}`, "bot");
       }
     }
-
-    sendBtn.addEventListener("click", sendMessage);
-    userInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        sendMessage();
-      }
-    });
   </script>
 </body>
 </html>
