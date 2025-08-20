@@ -2,214 +2,184 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Neutonian AI</title>
   <style>
-    body {
-      margin: 0;
-      font-family: "Segoe UI", Arial, sans-serif;
-      background: #f9fafb;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      color: #111827;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html {
+      width: 100%; height: 100%;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
     }
-
-    header {
-      background: #111827;
-      color: #fff;
-      padding: 14px 20px;
-      font-size: 20px;
-      font-weight: 600;
-      text-align: center;
+    .app {
+      display: flex; flex-direction: column;
+      width: 100%; height: 100%;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      overflow: hidden;
     }
-
+    .header {
+      padding: 14px; background: #4f46e5; color: white;
+      font-size: 1.2rem; font-weight: bold; text-align: center;
+    }
     .config {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding: 12px;
-      background: #e5e7eb;
-      border-bottom: 1px solid #d1d5db;
+      display: flex; flex-wrap: wrap; gap: 10px;
+      padding: 12px; border-bottom: 1px solid #eee; background: #fafafa;
     }
-
     .config input, .config select, .config button {
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #9ca3af;
-      font-size: 14px;
-      flex: 1;
-      min-width: 150px;
+      padding: 10px; border-radius: 8px; border: 1px solid #ddd;
+      font-size: 0.95rem; flex: 1; min-width: 140px;
     }
-
     .config button {
-      background: #2563eb;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      flex: none;
+      background: #4f46e5; color: white; border: none;
+      cursor: pointer; transition: background 0.2s ease;
     }
-    .config button:hover {
-      background: #1e40af;
+    .config button:hover { background: #4338ca; }
+    .chat {
+      flex: 1; padding: 16px; overflow-y: auto; background: #f9fafb;
     }
-
-    .chat-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 16px;
-      overflow-y: auto;
-      background: #f3f4f6;
-    }
-
     .message {
-      max-width: 85%;
-      padding: 12px 16px;
-      margin: 8px 0;
-      border-radius: 12px;
-      word-wrap: break-word;
-      white-space: pre-wrap;
+      max-width: 80%; padding: 10px 14px; margin: 8px 0;
+      border-radius: 14px; word-wrap: break-word; white-space: pre-wrap;
+      animation: fadeIn 0.3s ease;
     }
-
     .user {
-      align-self: flex-end;
-      background: #2563eb;
-      color: #fff;
+      background: #4f46e5; color: white;
+      margin-left: auto; border-bottom-right-radius: 4px;
     }
-
-    .ai {
-      align-self: flex-start;
-      background: #e5e7eb;
-      color: #111827;
+    .bot {
+      background: #e5e7eb; color: #111;
+      margin-right: auto; border-bottom-left-radius: 4px;
     }
-
-    .input-bar {
-      display: flex;
-      border-top: 1px solid #d1d5db;
-      padding: 10px;
-      background: #fff;
+    .loader {
+      display: inline-block;
+      width: 1em; text-align: left;
     }
-
-    .input-bar input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #9ca3af;
-      font-size: 14px;
+    .loader span {
+      display: inline-block;
+      width: 0.4em; height: 0.4em;
+      margin-right: 0.2em;
+      background: #555;
+      border-radius: 50%;
+      animation: blink 1.4s infinite both;
     }
-
-    .input-bar button {
-      margin-left: 10px;
-      padding: 10px 16px;
-      border-radius: 6px;
-      border: none;
-      background: #16a34a;
-      color: #fff;
-      cursor: pointer;
-      font-size: 14px;
+    .loader span:nth-child(2) { animation-delay: 0.2s; }
+    .loader span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
     }
-
-    .input-bar button:hover {
-      background: #15803d;
+    .input-area {
+      display: flex; border-top: 1px solid #eee;
+      padding: 10px; background: white;
     }
-
-    /* Mobile (<600px) */
+    .input-area input {
+      flex: 1; padding: 12px; border-radius: 8px;
+      border: 1px solid #ddd; font-size: 1rem;
+    }
+    .input-area button {
+      margin-left: 10px; padding: 12px 18px;
+      border: none; border-radius: 8px;
+      background: #4f46e5; color: white; cursor: pointer;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
     @media (max-width: 600px) {
-      .config {
-        flex-direction: column;
-      }
-      .config input, .config select, .config button {
-        width: 100%;
-      }
-      .message {
-        max-width: 95%;
-      }
+      .config { flex-direction: column; }
+      .config input, .config select, .config button { width: 100%; }
+      .message { max-width: 95%; }
     }
-
-    /* Tablet (601px–1024px) */
     @media (min-width: 601px) and (max-width: 1024px) {
-      .config {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .config input, .config select, .config button {
-        width: 100%;
-        margin: 6px 0;
-      }
-      .message {
-        max-width: 90%;
-      }
+      .config { flex-direction: column; align-items: stretch; }
+      .config input, .config select, .config button { width: 100%; }
     }
   </style>
 </head>
 <body>
-  <header>Neutonian AI</header>
+  <div class="app">
+    <div class="header">Neutonian AI</div>
 
-  <div class="config">
-    <input id="apiKey" type="password" placeholder="Enter your API Key" />
-    <select id="modelSelect">
-      <option value="gemini-2.5-flash" selected>gemini-2.5-flash</option>
-      <option value="gemini-1.5-flash">gemini-1.5-flash</option>
-      <option value="gemini-1.5-pro">gemini-1.5-pro</option>
-    </select>
-    <button onclick="startChat()">Start</button>
-  </div>
+    <div class="config">
+      <input id="apiKey" type="password" placeholder="Enter your API Key">
+      <select id="model">
+        <option value="gemini-2.5-flash" selected>gemini-2.5-flash</option>
+        <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+        <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+      </select>
+      <button id="startBtn">Start</button>
+    </div>
 
-  <div class="chat-container" id="chat"></div>
+    <div class="chat" id="chat"></div>
 
-  <div class="input-bar">
-    <input id="userInput" type="text" placeholder="Type your message..." disabled />
-    <button onclick="sendMessage()" disabled id="sendBtn">Send</button>
+    <div class="input-area">
+      <input id="userInput" type="text" placeholder="Type a message and press Enter...">
+      <button id="sendBtn">Send</button>
+    </div>
   </div>
 
   <script type="module">
     import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
     let genAI, model;
+    const startBtn = document.getElementById("startBtn");
+    const sendBtn = document.getElementById("sendBtn");
+    const userInput = document.getElementById("userInput");
+    const chat = document.getElementById("chat");
 
-    function addMessage(text, sender) {
-      const chat = document.getElementById("chat");
-      const msg = document.createElement("div");
-      msg.className = "message " + sender;
-      msg.innerHTML = text; // rich text support
-      chat.appendChild(msg);
+    function addMessage(text, sender, isHTML = false) {
+      const div = document.createElement("div");
+      div.className = `message ${sender}`;
+      div.innerHTML = isHTML ? text : text.replace(/\n/g, "<br>");
+      chat.appendChild(div);
       chat.scrollTop = chat.scrollHeight;
+      return div;
     }
 
-    window.startChat = function() {
-      const apiKey = document.getElementById("apiKey").value.trim();
-      const modelName = document.getElementById("modelSelect").value;
-      if (!apiKey) {
-        alert("Please enter API key");
+    startBtn.addEventListener("click", () => {
+      const key = document.getElementById("apiKey").value.trim();
+      const modelName = document.getElementById("model").value;
+
+      if (!key) {
+        alert("Please enter your API Key");
         return;
       }
-      genAI = new GoogleGenerativeAI(apiKey);
-      model = genAI.getGenerativeModel({ model: modelName });
-      document.getElementById("userInput").disabled = false;
-      document.getElementById("sendBtn").disabled = false;
-      addMessage("Chat started with Neutonian AI ("+modelName+")", "ai");
-    }
 
-    window.sendMessage = async function() {
-      const input = document.getElementById("userInput");
-      const text = input.value.trim();
-      if (!text) return;
+      genAI = new GoogleGenerativeAI(key);
+      model = genAI.getGenerativeModel({ model: modelName });
+
+      addMessage("Neutonian AI is ready. Start chatting!", "bot");
+    });
+
+    async function sendMessage() {
+      const text = userInput.value.trim();
+      if (!text || !model) return;
+
       addMessage(text, "user");
-      input.value = "";
+      userInput.value = "";
+
+      // show loader
+      const loader = addMessage(
+        `<div class="loader"><span></span><span></span><span></span></div>`,
+        "bot",
+        true
+      );
 
       try {
         const result = await model.generateContent(text);
-        const response = result.response.text();
-        addMessage(response, "ai");
-      } catch (e) {
-        addMessage("Error: " + e.message, "ai");
+        loader.remove(); // remove loader
+        addMessage(result.response.text(), "bot");
+      } catch (err) {
+        loader.remove();
+        addMessage("⚠️ Error: " + err.message, "bot");
       }
     }
 
-    document.getElementById("userInput").addEventListener("keydown", e => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        sendMessage();
-      }
+    sendBtn.addEventListener("click", sendMessage);
+    userInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") sendMessage();
     });
   </script>
 </body>
