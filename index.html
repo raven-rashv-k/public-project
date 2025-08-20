@@ -1,274 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Neutonian AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
 
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
       display: flex;
       justify-content: center;
       align-items: center;
+      background: #f4f6f9;
       height: 100vh;
       padding: 10px;
     }
 
-    .app-container {
+    .app {
       background: #fff;
       width: 100%;
-      max-width: 600px;
-      height: 100%;
-      max-height: 90vh;
+      max-width: 500px;
+      height: 90vh;
       display: flex;
       flex-direction: column;
-      border-radius: 16px;
+      border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       overflow: hidden;
     }
 
-    header {
-      padding: 16px;
-      background: #1e88e5;
-      color: #fff;
-      font-size: 1.2rem;
-      font-weight: bold;
+    .topbar {
+      padding: 15px;
+      background: #222;
+      color: white;
       text-align: center;
+      font-size: 18px;
+      font-weight: bold;
     }
 
-    .settings {
+    .controls {
       padding: 12px;
       display: flex;
+      flex-direction: column;
       gap: 8px;
+      background: #f9f9f9;
       border-bottom: 1px solid #ddd;
-      flex-wrap: wrap;
-      background: #fafafa;
     }
-    .settings input, .settings select, .settings button {
+
+    .controls input, .controls select, .controls button {
       padding: 8px;
-      border-radius: 8px;
+      border-radius: 6px;
       border: 1px solid #ccc;
-      font-size: 0.9rem;
+      font-size: 14px;
     }
-    .settings button {
-      background: #1e88e5;
+
+    .controls button {
+      background: #007bff;
       color: white;
       border: none;
       cursor: pointer;
-      transition: background 0.2s;
     }
-    .settings button:hover {
-      background: #1669bb;
-    }
+    .controls button:hover { background: #0056b3; }
 
-    .chat-container {
+    .chat {
       flex: 1;
       padding: 12px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      background: #fdfdfd;
+      background: #fafafa;
     }
 
     .msg {
       padding: 10px 14px;
-      border-radius: 12px;
+      border-radius: 10px;
       max-width: 80%;
+      word-wrap: break-word;
       line-height: 1.4;
-      overflow-wrap: break-word;
-      word-break: break-word;
-      white-space: pre-wrap;
     }
 
-    .user {
-      background: #1e88e5;
+    .msg.user {
+      background: #007bff;
       color: white;
       align-self: flex-end;
-      border-bottom-right-radius: 2px;
     }
 
-    .bot {
-      background: #f1f1f1;
+    .msg.bot {
+      background: #e9ecef;
+      color: black;
       align-self: flex-start;
-      border-bottom-left-radius: 2px;
     }
 
-    .msg pre {
-      background: #2d2d2d;
-      color: #f8f8f2;
-      padding: 8px;
-      border-radius: 6px;
-      overflow-x: auto;
-      max-width: 100%;
-    }
-
-    .msg code {
-      font-family: "Courier New", monospace;
-      background: #eee;
-      padding: 2px 4px;
-      border-radius: 4px;
-    }
-
-    .msg table {
-      border-collapse: collapse;
-      max-width: 100%;
-      overflow-x: auto;
-      display: block;
-    }
-    .msg th, .msg td {
-      border: 1px solid #ccc;
-      padding: 4px 6px;
-    }
-
-    .input-area {
+    .inputArea {
       display: flex;
+      gap: 8px;
+      padding: 12px;
       border-top: 1px solid #ddd;
-      padding: 10px;
       background: #fff;
     }
-    .input-area input {
+
+    .inputArea input {
       flex: 1;
       padding: 10px;
-      border-radius: 8px;
+      border-radius: 6px;
       border: 1px solid #ccc;
-      font-size: 1rem;
+      font-size: 14px;
     }
-    .input-area button {
-      margin-left: 8px;
+
+    .inputArea button {
       padding: 10px 16px;
-      background: #1e88e5;
       border: none;
-      color: #fff;
-      border-radius: 8px;
+      border-radius: 6px;
+      background: #28a745;
+      color: white;
+      font-size: 14px;
       cursor: pointer;
     }
+    .inputArea button:hover { background: #1e7e34; }
 
-    .loader {
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #1e88e5;
-      border-radius: 50%;
-      width: 16px;
-      height: 16px;
-      animation: spin 1s linear infinite;
-      display: inline-block;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
+    /* Responsive */
     @media (max-width: 600px) {
-      .app-container {
-        max-height: 100vh;
-        border-radius: 0;
-      }
+      .app { height: 95vh; max-width: 100%; }
     }
   </style>
 </head>
 <body>
-  <div class="app-container">
-    <header>Hello my name is Neutonian AI</header>
-
-    <div class="settings">
-      <input type="password" id="apiKey" placeholder="Enter API Key" />
+  <div class="app">
+    <div class="topbar">Neutonian AI</div>
+    <div class="controls">
+      <input id="apiKey" type="password" placeholder="Enter your Gemini API Key">
       <select id="model">
         <option value="gemini-2.5-flash" selected>gemini-2.5-flash</option>
+        <option value="gemini-2.0-flash">gemini-2.0-flash</option>
         <option value="gemini-1.5-flash">gemini-1.5-flash</option>
         <option value="gemini-1.5-pro">gemini-1.5-pro</option>
       </select>
       <button id="startBtn">Start</button>
     </div>
-
-    <div class="chat-container" id="chat"></div>
-
-    <div class="input-area">
-      <input type="text" id="userInput" placeholder="Type your message..." disabled />
-      <button id="sendBtn" disabled>Send</button>
+    <div id="chat" class="chat"></div>
+    <div class="inputArea">
+      <input id="userInput" type="text" placeholder="Type a message...">
+      <button id="sendBtn">Send</button>
     </div>
   </div>
 
   <!-- Markdown parser -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-  <script>
-    let apiKey = "";
-    let modelName = "gemini-2.5-flash";
+  <script type="module">
+    import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
-    const chatEl = document.getElementById("chat");
-    const inputEl = document.getElementById("userInput");
-    const sendBtn = document.getElementById("sendBtn");
+    let genAI, model;
 
-    document.getElementById("startBtn").addEventListener("click", () => {
-      apiKey = document.getElementById("apiKey").value.trim();
-      modelName = document.getElementById("model").value;
-      if (!apiKey) {
-        alert("Please enter your API key");
-        return;
-      }
-      inputEl.disabled = false;
-      sendBtn.disabled = false;
-    });
-
-    function addMessage(html, sender) {
-      const div = document.createElement("div");
-      div.className = `msg ${sender}`;
-      div.innerHTML = html;
-      chatEl.appendChild(div);
-      chatEl.scrollTop = chatEl.scrollHeight;
+    function addMessage(content, sender) {
+      const chat = document.getElementById("chat");
+      const msg = document.createElement("div");
+      msg.className = `msg ${sender}`;
+      msg.innerHTML = content; // ✅ rich text
+      chat.appendChild(msg);
+      chat.scrollTop = chat.scrollHeight;
     }
 
+    document.getElementById("startBtn").addEventListener("click", () => {
+      const key = document.getElementById("apiKey").value.trim();
+      const modelName = document.getElementById("model").value;
+      if (!key) {
+        alert("Please enter API key");
+        return;
+      }
+      genAI = new GoogleGenerativeAI(key);
+      model = genAI.getGenerativeModel({ model: modelName });
+      document.getElementById("chat").innerHTML = "";
+      addMessage("👋 Hello! I am Neutonian AI. How can I help you?", "bot");
+    });
+
+    document.getElementById("sendBtn").addEventListener("click", sendMessage);
+    document.getElementById("userInput").addEventListener("keypress", e => {
+      if (e.key === "Enter") sendMessage();
+    });
+
     async function sendMessage() {
-      const text = inputEl.value.trim();
-      if (!text) return;
+      const input = document.getElementById("userInput");
+      const text = input.value.trim();
+      if (!text || !model) return;
+
       addMessage(marked.parse(text), "user");
-      inputEl.value = "";
+      input.value = "";
 
       const loaderBubble = document.createElement("div");
       loaderBubble.className = "msg bot";
-      loaderBubble.innerHTML = '<span class="loader"></span>';
-      chatEl.appendChild(loaderBubble);
-      chatEl.scrollTop = chatEl.scrollHeight;
+      loaderBubble.textContent = "⏳ Neutonian AI is thinking...";
+      document.getElementById("chat").appendChild(loaderBubble);
+      document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
 
       try {
-        const resp = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ role: "user", parts: [{ text }] }]
-            })
-          }
-        );
-        const data = await resp.json();
-        loaderBubble.remove();
+        const result = await model.generateContent(text);
+        const rawReply = result.response.text();
 
-        if (data.candidates && data.candidates.length > 0) {
-          const rawReply = data.candidates[0].content.parts[0].text;
-          const replyHtml = marked.parse(rawReply);
-          addMessage(replyHtml, "bot");
-        } else {
-          addMessage("⚠️ No response", "bot");
-        }
+        const replyHtml = marked.parse(rawReply); // ✅ format Markdown
+
+        loaderBubble.remove();
+        addMessage(replyHtml, "bot");
       } catch (err) {
         loaderBubble.remove();
-        addMessage("⚠️ Error: " + err.message, "bot");
+        addMessage(`⚠️ Error: ${err.message}`, "bot");
       }
     }
-
-    sendBtn.addEventListener("click", sendMessage);
-    inputEl.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") sendMessage();
-    });
   </script>
 </body>
 </html>
