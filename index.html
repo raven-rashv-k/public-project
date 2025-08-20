@@ -40,6 +40,7 @@
       flex: 1; padding: 16px; overflow-y: auto; background: #f9fafb;
     }
     .message {
+      display: inline-block;
       max-width: 80%; padding: 10px 14px; margin: 8px 0;
       border-radius: 14px; word-wrap: break-word; white-space: pre-wrap;
       animation: fadeIn 0.3s ease;
@@ -52,16 +53,18 @@
       background: #e5e7eb; color: #111;
       margin-right: auto; border-bottom-left-radius: 4px;
     }
+    /* Loader inside bubble */
     .loader {
-      display: inline-block;
-      width: 1em; text-align: left;
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      justify-content: center;
     }
     .loader span {
-      display: inline-block;
-      width: 0.4em; height: 0.4em;
-      margin-right: 0.2em;
+      width: 6px; height: 6px;
       background: #555;
       border-radius: 50%;
+      display: inline-block;
       animation: blink 1.4s infinite both;
     }
     .loader span:nth-child(2) { animation-delay: 0.2s; }
@@ -160,7 +163,7 @@
       addMessage(text, "user");
       userInput.value = "";
 
-      // show loader
+      // loader inside bot bubble
       const loader = addMessage(
         `<div class="loader"><span></span><span></span><span></span></div>`,
         "bot",
@@ -169,7 +172,7 @@
 
       try {
         const result = await model.generateContent(text);
-        loader.remove(); // remove loader
+        loader.remove();
         addMessage(result.response.text(), "bot");
       } catch (err) {
         loader.remove();
